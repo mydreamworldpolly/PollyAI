@@ -10,7 +10,7 @@
 ## English Version
 
 ### Overview
-PollyAI Notepad is a minimalist Windows client designed for academic and professional environments. With its compact size and discreet interface, it offers powerful AI capabilities while maintaining a low profile.
+PollyAI Notepad is a minimalist AI Windows client designed for academic and professional environments. With its compact size and discreet interface, it offers powerful AI capabilities while maintaining a low profile.
 
 ### Key Features
 - Portable: No installation required, just copy and paste to use
@@ -73,7 +73,7 @@ Polly
 ## Chinese Version (中文版本)
 
 ### 项目概述
-PollyAI便签是一款为学术和职业环境设计的Windows迷你客户端。它体积小巧，界面简洁，提供强大的AI功能的同时保持低调的外观。
+PollyAI便签是一款为学术和职业环境设计的Windows AI迷你客户端。它体积小巧，界面简洁，提供强大的AI功能的同时保持低调的外观。
 
 ### 主要特点
 - 便携：无需安装，复制即用

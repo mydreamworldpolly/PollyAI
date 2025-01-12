@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.10.35027.167
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PollyAI5", "PollyAI5.csproj", "{F146A893-DE95-4F0D-AC65-F57586BBFDB0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F146A893-DE95-4F0D-AC65-F57586BBFDB0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F146A893-DE95-4F0D-AC65-F57586BBFDB0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F146A893-DE95-4F0D-AC65-F57586BBFDB0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F146A893-DE95-4F0D-AC65-F57586BBFDB0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7C1CDF86-CAB7-4DCF-BEF0-8AEACD5E9F4C}
+	EndGlobalSection
+EndGlobal

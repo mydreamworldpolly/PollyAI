@@ -26,7 +26,7 @@ PollyAI Notepad is a minimalist AI Windows client designed for academic and prof
 - Compatible with Windows 10 and Windows 11
 - Supports multiple AI providers:
   - Azure OpenAI
-  - OpenRouter
+  - OpenRouter (or other openai-compatible API)
   - Ollama
   - DeepSeek
 
@@ -89,7 +89,7 @@ PollyAI便签是一款为学术和职业环境设计的Windows AI迷你客户端
 - 支持Windows 10和Windows 11
 - 支持多个AI服务商：
   - Azure OpenAI
-  - OpenRouter
+  - OpenRouter (理论上也兼容其他的 openai兼容api)
   - Ollama
   - DeepSeek
 

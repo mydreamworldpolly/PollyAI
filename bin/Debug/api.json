@@ -1,0 +1,44 @@
+{
+    "models": [
+        {
+            "name": "GPT4+",
+            "endpoint": "https://xxxx.openai.azure.com/openai/deployments/xxxx/chat/completions?api-version=2024-10-21",
+            "key": "xxxx",
+            "model_name": "",
+            "contextLength": 128000,
+            "outputLength": 16384
+        },
+        {
+            "name": "GPT4+Free",
+            "endpoint": "https://models.inference.ai.azure.com/chat/completions",
+            "key": "xxx",
+            "model_name": "gpt-4o",
+            "contextLength": 8000,
+            "outputLength": 4000
+        },
+        {
+            "name": "Free",
+            "endpoint": "https://openrouter.ai/api/v1/chat/completions",
+            "key": "xxxx",
+            "model_name": "google/gemini-2.0-flash-exp:free",
+            "contextLength": 1000000,
+            "outputLength": 8000
+        },
+        {
+            "name": "Local",
+            "endpoint": "http://127.0.0.1:11434/v1/chat/completions",
+            "key": "",
+            "model_name": "qwen32",
+            "contextLength": 16000,
+            "outputLength": 16000
+        },
+        {
+            "name": "Deepseek",
+            "endpoint": "https://api.deepseek.com/chat/completions",
+            "key": "xxxx",
+            "model_name": "deepseek-chat",
+            "contextLength": 64000,
+            "outputLength": 8000
+        },
+    ]
+}

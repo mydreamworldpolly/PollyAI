@@ -1,0 +1,18 @@
+{
+    "models": [
+        {
+            "name": "flux-schnell",
+            "endpoint": "https://api.replicate.com/v1/models/black-forest-labs/flux-schnell/predictions",
+            "key": "xxxx",
+            "imageQuality": "Standard",
+            "isFlux": "true"
+        },
+        {
+            "name": "Dalle3HD",
+            "endpoint": "https://xxxx.openai.azure.com/openai/deployments/xxxx/images/generations?api-version=2024-02-01",
+            "key": "xxxx",
+            "imageQuality": "High",
+            "isFlux": "false"
+        },
+    ]
+}

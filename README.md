@@ -11,6 +11,8 @@
 
 ### Overview
 PollyAI Notepad is a minimalist AI Windows client designed for academic and professional environments. With its compact size and discreet interface, it offers powerful AI capabilities while maintaining a low profile.
+<img width="947" alt="image" src="https://github.com/user-attachments/assets/97d33868-c0c3-419a-9637-250e4f63f40c" />
+<img width="950" alt="image" src="https://github.com/user-attachments/assets/6760bf13-cd05-4a3b-9864-0805fab004ca" />
 
 ### Key Features
 - Portable: No installation required, just copy and paste to use
@@ -60,6 +62,13 @@ PollyAI Notepad is a minimalist AI Windows client designed for academic and prof
    - Click 'Copilot' button for search and image generation
    - Image generation requires either Flux (via Replicate) or DALLE-3 (via Azure) configuration
    - Generated images are saved to desktop by default
+  
+5. Custom Prompts and Memories:
+   - Create .txt files in the same folder as the executable
+   - Files will automatically appear in the Prompts and Memory dropdowns
+   - Use these files to store frequently used prompts or custom knowledge
+   - Example: Define custom translations or behaviors (e.g., "Polly" must be translated as "glass" in Chinese)
+   - Selected prompt and memory content are automatically injected into conversations when using Send or Copilot buttons
 
 ### Version
 0.1.0 (Beta)
@@ -123,6 +132,13 @@ PollyAI便签是一款为学术和职业环境设计的Windows AI迷你客户端
    - 点击"Copilot"按钮使用搜索和生成图像功能
    - 图像生成需要配置Flux（通过Replicate）或DALLE-3（通过Azure）
    - 生成的图片默认保存在桌面
+  
+5. 自定义Prompt和记忆库：
+   - 在程序exe所在文件夹创建txt文本文件
+   - 这些文件会自动出现在Prompts和Memory下拉菜单中
+   - 用于储存常用的prompt或自定义知识
+   - 例如：定义特定翻译或行为（如"Polly"必须翻译成"玻璃"而不是"波莉"）
+   - 使用Send或Copilot按钮时，选中的prompt和memory内容会自动注入到对话中供AI参考
 
 ### 版本
 0.1.0（测试版）

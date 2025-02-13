@@ -109,7 +109,7 @@ PollyAI便签是一款为学术和职业环境设计的Windows AI迷你客户端
 
 ### 安装配置
 1. 从release section下载五个文件
-2. 在api.json中配置AI服务商的endpoint和API密钥
+2. 在api.json中配置AI服务商的endpoint和API密钥(打开就能看到例子，直接改就行)
 3. （可选）在search.json中配置Azure Bing API密钥以启用搜索功能
 4. （可选）在image.json中配置Replicate的Flux模型密钥或Azure的DALLE-3密钥
 

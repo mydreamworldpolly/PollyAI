@@ -1,4 +1,4 @@
-# PollyAI Notepad (PollyAI便签)
+# PollyAI (The lightest and most portable AI client in the world - only 1MB in size.)
 
 <div align="center">
 

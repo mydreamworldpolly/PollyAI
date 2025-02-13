@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PollyAI5"
         mc:Ignorable="d"
-        Title="Polly便签" Height="720" Width="1280" Loaded="Window_Loaded">
+        Title="PollyAI" Height="720" Width="1280" Loaded="Window_Loaded">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="101*"/>
@@ -19,7 +19,9 @@
             <ColumnDefinition Width="42*"/>
             <ColumnDefinition Width="23*"/>
             <ColumnDefinition Width="170*"/>
-            <ColumnDefinition Width="789*"/>
+            <ColumnDefinition Width="43*"/>
+            <ColumnDefinition Width="36*"/>
+            <ColumnDefinition Width="710*"/>
             <ColumnDefinition Width="81*"/>
             <ColumnDefinition Width="129*"/>
         </Grid.ColumnDefinitions>
@@ -28,7 +30,7 @@
                   " 
                   LoadingRow="DataGrid_LoadingRow"  SelectionChanged="dialogDataGrid_SelectionChanged" PreviewKeyDown="DialogDataGrid_PreviewKeyDown" 
                   MouseDoubleClick="DialogDataGrid_MouseDoubleClick"
-                  RowHeaderWidth="20" Grid.ColumnSpan="8" >
+                  RowHeaderWidth="20" Grid.ColumnSpan="10" >
             <DataGrid.RowStyle>
                 <Style TargetType="DataGridRow">
                     <Setter Property="Height" Value="Auto"/>
@@ -68,11 +70,11 @@
                 </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
-        <Grid Grid.Column="9" HorizontalAlignment="Right" Grid.Row="1" VerticalAlignment="Bottom" Width="101" Margin="0,0,18,21" Height="85">
+        <Grid Grid.Column="11" HorizontalAlignment="Right" Grid.Row="1" VerticalAlignment="Bottom" Width="101" Margin="0,0,18,21" Height="85">
             <Button x:Name="Clearbutton" Content="Clear" HorizontalAlignment="Left" Height="36" Margin="10,49,0,0" VerticalAlignment="Top" Width="78" FontSize="18" Click="Clearbutton_Click"/>
             <Button x:Name="Helpbutton" Content="Help" HorizontalAlignment="Left" Height="36" Margin="10,6,0,0" VerticalAlignment="Top" Width="78" FontSize="18" Click="Helpbutton_Click"/>
         </Grid>
-        <Grid Grid.Column="7" HorizontalAlignment="Right" Grid.Row="1" VerticalAlignment="Bottom" Margin="0,0,361,33">
+        <Grid Grid.Column="9" HorizontalAlignment="Right" Grid.Row="1" VerticalAlignment="Bottom" Margin="0,0,361,33">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="11*"/>
                 <ColumnDefinition Width="49*"/>
@@ -81,7 +83,7 @@
 
         </Grid>
 
-        <Grid HorizontalAlignment="Left" Height="130" VerticalAlignment="Bottom" Width="403" Grid.Column="2" Grid.ColumnSpan="6" Margin="8,0,0,10" Grid.Row="1">
+        <Grid HorizontalAlignment="Left" Height="130" VerticalAlignment="Bottom" Width="403" Grid.Column="2" Grid.ColumnSpan="8" Margin="8,0,0,10" Grid.Row="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="55*"/>
@@ -105,11 +107,11 @@
 
             </Grid>
         </Grid>
-        <Grid Grid.Column="6" HorizontalAlignment="Left" Height="41" Margin="109,0,0,75" Grid.Row="1" VerticalAlignment="Bottom" Width="144" Grid.ColumnSpan="2">
+        <Grid Grid.Column="6" HorizontalAlignment="Left" Height="41" Margin="109,0,0,75" Grid.Row="1" VerticalAlignment="Bottom" Width="144" Grid.ColumnSpan="4">
             <Slider x:Name="fontBar" HorizontalAlignment="Center" Height="21" VerticalAlignment="Top" Width="120" ValueChanged="FontBar_ValueChanged" Value="18" Minimum="10" Maximum="72" LargeChange="2" SmallChange="1" Margin="0,20,0,0"/>
             <Label Content="Font" HorizontalAlignment="Left" Height="36" Margin="52,-5,0,0" VerticalAlignment="Top" Width="80" FontFamily="Microsoft YaHei"/>
         </Grid>
-        <Grid Grid.Column="7" HorizontalAlignment="Right" Height="118" Grid.Row="1" VerticalAlignment="Bottom" Width="381" Margin="0,0,49,8">
+        <Grid Grid.Column="9" HorizontalAlignment="Right" Height="118" Grid.Row="1" VerticalAlignment="Bottom" Width="381" Margin="0,0,49,8">
             <ComboBox x:Name="PromptBox" HorizontalAlignment="Left" Height="34" Margin="10,74,0,0" VerticalAlignment="Top" Width="104" SelectedIndex="0" FontSize="16" SelectionChanged="PromptBox_SelectionChanged">
                 <ComboBoxItem Content="None"/>
             </ComboBox>
@@ -122,9 +124,9 @@
             <Label Content="Prompt" HorizontalAlignment="Left" Height="28" Margin="10,49,0,0" VerticalAlignment="Top" Width="96" RenderTransformOrigin="0.809,0.595"/>
             <Label Content="Image Model" HorizontalAlignment="Left" Height="28" Margin="262,49,0,0" VerticalAlignment="Top" Width="96" RenderTransformOrigin="0.809,0.595"/>
             <Button x:Name="CopilotButton" Content="Copilot" HorizontalAlignment="Left" Height="39" Margin="150,0,0,73" VerticalAlignment="Bottom" Width="78" FontSize="18" Click="CopilotButton_Click"/>
-            <Button x:Name="Sendbutton" Content="Send" HorizontalAlignment="Left" Height="52" VerticalAlignment="Top" Width="126" FontSize="28" Click="Sendbutton_Click" Margin="-177,25,0,0"/>
+            <Button x:Name="Sendbutton" Content="Send" HorizontalAlignment="Left" Height="52" VerticalAlignment="Top" Width="126" FontSize="28" Click="Sendbutton_Click" Margin="-228,0,0,0"/>
         </Grid>
-        <Label x:Name="MessageLabel" Content="Message:" HorizontalAlignment="Left" Height="23" VerticalAlignment="Top" Width="1002" FontFamily="Microsoft YaHei" Grid.ColumnSpan="6" Grid.Column="2" Margin="8,260,0,0" Grid.Row="1" FontSize="8"/>
+        <Label x:Name="MessageLabel" Content="Message:" HorizontalAlignment="Left" Height="23" VerticalAlignment="Top" Width="1002" FontFamily="Microsoft YaHei" Grid.ColumnSpan="8" Grid.Column="2" Margin="8,260,0,0" Grid.Row="1" FontSize="8"/>
 
 
 

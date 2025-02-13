@@ -12,9 +12,11 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 
 namespace PollyAI5
 {
@@ -58,32 +60,30 @@ namespace PollyAI5
         }
 
 
-        public string Chat(int maxtokens, float creative, string model, List<object> functions = null, FunctionExecutor executor = null)
+        public async Task Chat(int maxtokens, float creative, string model, List<object> functions = null, FunctionExecutor executor = null,bool isAsync=true)
         {
 
             AIModel aiModel = GetModelFromName(model);
 
-            string modelreturn = SendToModel(aiModel, maxtokens, creative, DialogEntries, functions, executor);
-
             DialogEntries.Add(new DialogEntry
             {
                 Character = "assistant",
-                DialogText = modelreturn,
+                DialogText = "",
                 Image = null
             });
+
+            await SendToModel(aiModel, maxtokens, creative, DialogEntries, functions, executor, isAsync);
+
 
             if (maxRound > 0)
             {
                 TrimDialogEntries(aiModel);
             }
-
-            return modelreturn;
-
         }
 
 
         //prepare messages for sending to GPT api
-        private string SendToModel(AIModel aiModel, int maxtokens, float creative, ObservableCollection<DialogEntry> DialogEntries, List<object> functions, FunctionExecutor executor)
+        private async Task SendToModel(AIModel aiModel, int maxtokens, float creative, ObservableCollection<DialogEntry> DialogEntries, List<object> functions, FunctionExecutor executor, bool isAsync)
         {
             var messages = new List<dynamic>();
 
@@ -116,14 +116,6 @@ namespace PollyAI5
                     messages.Add(message);
                 }
             }
-
-            string completion = sendMessages(aiModel, maxtokens, creative, messages, functions, executor);
-            return completion;
-        }
-
-        //send to GPT api and process ToolCall if in need
-        private string sendMessages(AIModel aiModel, int maxtokens, float creative, List<dynamic> messages, List<object> functions, FunctionExecutor executor)
-        {
             var requestBody = new Dictionary<string, object>
             {
                 { "messages", messages },
@@ -139,69 +131,145 @@ namespace PollyAI5
 
             using (var httpClient = new HttpClient())
             {
-
-                if (aiModel.model_name == "")
+                httpClient.Timeout = TimeSpan.FromSeconds(300);
+                
+                if (aiModel.model_name == "Azure")
                 {
                     httpClient.DefaultRequestHeaders.Add("api-key", aiModel.key);
                 }
                 else
                 {
                     httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", aiModel.key);
-                    requestBody["model"] = aiModel.model_name;
-                }
-
-                var jsonContent = new StringContent(JsonConvert.SerializeObject(requestBody), Encoding.UTF8, "application/json");
-                string completion = "";
-                var response = httpClient.PostAsync(aiModel.endpoint, jsonContent).Result;
-                response.EnsureSuccessStatusCode();
-                var result = response.Content.ReadAsStringAsync().Result;
-                var jsonResult = JObject.Parse(result);
-                if (jsonResult.ContainsKey("error"))
-                {
-                    throw new Exception("error:" + result);
-                }
-
-                var choice = jsonResult["choices"][0]["message"];
-                if (choice["tool_calls"] != null && choice["tool_calls"].Type == JTokenType.Array)
-                {
-                    var toolCalls = (JArray)choice["tool_calls"];
-                    messages.Add(choice);
-
-                    foreach (var toolCall in toolCalls)
+                    if (aiModel.model_name != "")
                     {
-                        if (toolCall["function"] != null)
+                        requestBody["model"] = aiModel.model_name;
+                    }
+                }
+                
+                if(isAsync)
+                    await SendMessagesAsync(aiModel,requestBody, httpClient, messages, functions, executor);
+                else
+                    await SendMessages(aiModel, requestBody, httpClient, messages, functions, executor);
+            } 
+        }
+
+        //send to GPT api and process ToolCall if in need
+        private async Task SendMessagesAsync(AIModel aiModel,Dictionary<string, object> requestBody, HttpClient httpClient, List<dynamic> messages, List<object> functions, FunctionExecutor executor)
+        {
+            requestBody["stream"] = true;
+            var jsonContent = new StringContent(JsonConvert.SerializeObject(requestBody), Encoding.UTF8, "application/json");
+            var request = new HttpRequestMessage(HttpMethod.Post, aiModel.endpoint); // 创建 HttpRequestMessage
+            request.Content = jsonContent; // 设置请求内容
+
+            using (var response2 = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead)) // 使用 SendAsync 和 ResponseHeadersRead
+            {
+                response2.EnsureSuccessStatusCode();
+
+                using (var stream = await response2.Content.ReadAsStreamAsync()) // 后续流式读取代码保持不变
+                using (var reader = new System.IO.StreamReader(stream))
+                {
+
+                    int count = 0;
+                    while (!reader.EndOfStream)
+                    {
+                        string line = await reader.ReadLineAsync();
+                        if (line != null && line.StartsWith("data:"))
                         {
-                            string functionName = toolCall["function"]["name"].ToString();
-                            string functionArgs = toolCall["function"]["arguments"].ToString();
-
-                            // Toolcall
-                            string functionResult = executor(functionName, functionArgs);
-
-                            object toolMessage = new
+                            string data = line.Substring(5).Trim(); // Remove "data: " prefix and trim whitespace
+                            if (data != "[DONE]") // End of stream marker
                             {
-                                tool_call_id = toolCall["id"],
-                                role = "tool",
-                                name = functionName,
-                                content = functionResult
-                            };
+                                JObject jsonDocument = JObject.Parse(data); // Parse with JObject
 
-                            messages.Add(toolMessage);
+                                if (jsonDocument.ContainsKey("error"))
+                                {
+                                    throw new Exception("error:" + data);
+                                }
 
+                                if (jsonDocument["choices"] != null && jsonDocument["choices"].Count() != 0)
+                                {
+                                    var choice = jsonDocument["choices"][0]["delta"];
+
+                                    if (jsonDocument["choices"][0]["delta"] != null)
+                                    {
+                                        if (jsonDocument["choices"][0]["delta"]["content"] != null)
+                                        {
+                                            string text = jsonDocument["choices"][0]["delta"]["content"]?.ToString(); // Access properties using JObject indexer and convert to string
+                                            if (!string.IsNullOrEmpty(text))
+                                            {
+                                                DialogEntries[DialogEntries.Count - 1].DialogText += text;
+                                                count++;
+
+                                                if (count > 5)
+                                                {
+                                                    Dispatcher.CurrentDispatcher.Invoke(DispatcherPriority.Render, new Action(() => { }));// Force UI update
+                                                    await Dispatcher.Yield(DispatcherPriority.Render);
+                                                    count = 0;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        DialogEntries[DialogEntries.Count - 1].DialogText = "cannot get GPT response";
+                                    }
+                                }
+
+                            }
                         }
                     }
-                    completion = sendMessages(aiModel, maxtokens, creative, messages, functions, executor);
+                }
+            }
+        }
 
-                }
-                else if (choice["content"] != null)
-                {
-                    completion = choice["content"].ToString();
-                }
-                else
-                {
-                    completion = "cannot get GPT response";
-                }
+        private async Task SendMessages(AIModel aiModel, Dictionary<string, object> requestBody, HttpClient httpClient, List<dynamic> messages, List<object> functions, FunctionExecutor executor)
+        {
+            var jsonContent = new StringContent(JsonConvert.SerializeObject(requestBody), Encoding.UTF8, "application/json");
+            var response = httpClient.PostAsync(aiModel.endpoint, jsonContent).Result;
+            response.EnsureSuccessStatusCode();
+            var result = await response.Content.ReadAsStringAsync();
+            var jsonResult = JObject.Parse(result);
+            if (jsonResult.ContainsKey("error"))
+            {
+                throw new Exception("error:" + result);
+            }
 
-                return completion;
+            var choice = jsonResult["choices"][0]["message"];
+            if (choice["tool_calls"] != null && choice["tool_calls"].Count() != 0 && choice["tool_calls"].Type == JTokenType.Array)
+            {
+                var toolCalls = (JArray)choice["tool_calls"];
+                messages.Add(choice);
+
+                foreach (var toolCall in toolCalls)
+                {
+                    if (toolCall["function"] != null)
+                    {
+                        string functionName = toolCall["function"]["name"].ToString();
+                        string functionArgs = toolCall["function"]["arguments"].ToString();
+
+                        // Toolcall
+                        string functionResult = executor(functionName, functionArgs);
+
+                        object toolMessage = new
+                        {
+                            tool_call_id = toolCall["id"],
+                            role = "tool",
+                            name = functionName,
+                            content = functionResult
+                        };
+
+                        messages.Add(toolMessage);
+                    }
+                }
+                await SendMessages(aiModel,requestBody,httpClient, messages, functions, executor);
+
+            }
+            else if (choice["content"] != null)
+            {
+                DialogEntries[DialogEntries.Count - 1].DialogText = choice["content"].ToString();
+            }
+            else
+            {
+                DialogEntries[DialogEntries.Count - 1].DialogText = "cannot get GPT response";
             }
         }
 
@@ -239,15 +307,7 @@ namespace PollyAI5
                     entriesToSummarize.Add(DialogEntries[i]);
                 }
                 entriesToSummarize.Insert(0, new DialogEntry { Character = "system", DialogText = "act as a meticulous and skilled summarizer secretary, summarizing the conversation between the user and the assistant below, and output a brief dialogue summary. Example output: In the previous conversation, the user mentioned..., and the assistant discussed...", Image = null });
-                string summary = SendToModel(aiModel, 500, 0, entriesToSummarize, null, null);
-
-                // insert summarized info
-                DialogEntries.Insert(1, new DialogEntry
-                {
-                    Character = "user",
-                    DialogText = summary,
-                    Image = null
-                });
+                SendToModel(aiModel, 500, 0, entriesToSummarize, null, null,false).Wait();
 
                 // delete old conversations
                 for (int i = 0; i < halfCount; i++)
@@ -303,7 +363,7 @@ namespace PollyAI5
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        protected virtual void OnPropertyChanged(string propertyName)
+        public virtual void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }

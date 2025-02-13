@@ -5,7 +5,6 @@ using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -23,6 +22,7 @@ namespace PollyAI5
 
         BitmapImage nullImage = new BitmapImage();
         AI ai = new AI("Act as a helpful assistant","api.json");
+        
 
         Copilot copilot = new Copilot();
         string memory = "";
@@ -45,10 +45,58 @@ namespace PollyAI5
             LoadTxtFiles();
         }
 
-        private async Task HandleButtonClick(Action action, Button button)
+
+        private async void Sendbutton_Click(object sender, RoutedEventArgs e)
         {
-            string systemPromptOrigin = ai.DialogEntries[0].DialogText; 
+            string originalContent = Sendbutton.Content.ToString();
+            try
+            {
+                Sendbutton.IsEnabled = false;
+
+                Sendbutton.Content = "wait...";
+
+
+                string systemPromptOrigin = ai.DialogEntries[0].DialogText;
+
+                if (prompt != "")
+                {
+                    ai.DialogEntries[0].DialogText = prompt;
+                }
+                if (memory != "")
+                {
+                    ai.DialogEntries[0].DialogText = ai.DialogEntries[0].DialogText +
+                        $"Note: When solving problems, the following supplementary knowledge is considered to be knowledge you have already mastered：<{memory}>";
+                }
+
+                // Remove empty DialogText items
+                var itemsToRemove = ai.DialogEntries.Where(entry => string.IsNullOrEmpty(entry.DialogText)).ToList();
+                foreach (var item in itemsToRemove)
+                {
+                    ai.DialogEntries.Remove(item);
+                }
+
+                await ai.Chat(Convert.ToInt32(maxtokenBox.Text), (float)creativeBar.Value / 10, modelBox.Text);
+
+                ai.DialogEntries[0].DialogText = systemPromptOrigin;
+            }
+            finally
+            {
+                Sendbutton.IsEnabled = true;
+                Sendbutton.Content = originalContent;
+
+            }
+        }
+
+    private async void CopilotButton_Click(object sender, RoutedEventArgs e)
+    {
+        string originalContent = CopilotButton.Content.ToString();
+        try 
+        {
+            CopilotButton.IsEnabled = false;
             
+            CopilotButton.Content = "wait...";
+
+            string systemPromptOrigin = ai.DialogEntries[0].DialogText;
 
             if (prompt != "")
             {
@@ -56,75 +104,36 @@ namespace PollyAI5
             }
             if (memory != "")
             {
-                ai.DialogEntries[0].DialogText = ai.DialogEntries[0].DialogText + $"Note: When solving problems, the following supplementary knowledge is considered to be knowledge you have already mastered：<{memory}>";
+                ai.DialogEntries[0].DialogText = ai.DialogEntries[0].DialogText + 
+                    $"Note: When solving problems, the following supplementary knowledge is considered to be knowledge you have already mastered：<{memory}>";
             }
 
-            string buttonText = button.Content.ToString();
-
-
-            button.IsEnabled = false;
-            button.Content = "wait...";
-
-            Dispatcher.Invoke(DispatcherPriority.Background, new Action(() => { }));
-
-            // remove empty DialogText item
+            // Remove empty DialogText items
             var itemsToRemove = ai.DialogEntries.Where(entry => string.IsNullOrEmpty(entry.DialogText)).ToList();
             foreach (var item in itemsToRemove)
             {
                 ai.DialogEntries.Remove(item);
             }
 
-            await Task.Run(() =>
+            try
             {
-                Dispatcher.Invoke(() =>
-                {
-                    try
-                    {
-                        action();
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageLabel.Content = ex.Message;
-                    }
-                });
-            });
-
-            button.IsEnabled = true;
-            button.Content = buttonText;
+                    Dispatcher.CurrentDispatcher.Invoke(DispatcherPriority.Render, new Action(() => { }));// Force UI update
+                    await Dispatcher.Yield(DispatcherPriority.Render);
+                    await copilot.Work(Convert.ToInt32(maxtokenBox.Text), (float)creativeBar.Value / 10, modelBox.Text, ai, memory);
+            }
+            catch (Exception ex)
+            {
+                MessageLabel.Content = ex.Message;
+            }
 
             ai.DialogEntries[0].DialogText = systemPromptOrigin;
         }
-
-        private async void Sendbutton_Click(object sender, RoutedEventArgs e)
+        finally 
         {
-            await HandleButtonClick(() =>
-            {
-                ai.Chat(Convert.ToInt16(maxtokenBox.Text), (float)creativeBar.Value / 10, modelBox.Text);
-            }, Sendbutton);
+            CopilotButton.IsEnabled = true;
+            CopilotButton.Content = originalContent;
         }
-
-        private async void CopilotButton_Click(object sender, RoutedEventArgs e)
-        {
-            await HandleButtonClick(() =>
-            {
-                try
-                {
-
-                    string result = copilot.Work(Convert.ToInt16(maxtokenBox.Text), (float)creativeBar.Value / 10, modelBox.Text, ai, memory);
-
-                    if (copilot.bitmap == null)
-                        ai.AddMessage(prompt: result, character: "assistant");
-                    else
-                        ai.AddMessage(prompt: result, character: "assistant", image: copilot.bitmap);
-                }
-                catch (Exception ex)
-                {
-                    MessageLabel.Content = ex.Message;
-                }
-
-            }, CopilotButton);
-
-        }
+    }
 
         
 

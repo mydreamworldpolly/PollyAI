@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Threading.Tasks;
 using static PollyAI5.GenImage;
 
 namespace PollyAI5
@@ -22,7 +23,7 @@ Say I don't know if you don't have the answer.
 
         }
 
-        public string Work(int maxtoken, float creative, string model, AI mainAI, string memory)
+        public async Task Work(int maxtoken, float creative, string model, AI mainAI, string memory)
         {
             bitmap = null;
 
@@ -46,9 +47,13 @@ Say I don't know if you don't have the answer.
 
             FunctionExecutor executor = new FunctionExecutor(ExecuteFunction);
 
-            string r = ai.Chat(maxtoken, creative, model, functions, executor);
+            await ai.Chat(maxtoken, creative, model, functions, executor,false);
 
-            return r;
+            mainAI.AddMessage(ai.DialogEntries[ai.DialogEntries.Count - 1].DialogText);
+
+            if (bitmap != null)
+                mainAI.DialogEntries[mainAI.DialogEntries.Count-1].Image = bitmap;
+
         }
 
         private string ExecuteFunction(string functionName, string functionArgs)
@@ -84,8 +89,6 @@ Say I don't know if you don't have the answer.
                     {
                         return "error:" + ex.Message;
                     }
-
-
                 default:
                     return $"未知函数: {functionName}";
             }
